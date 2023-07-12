@@ -1,15 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:takasapp/pages/advertise_publish.dart';
-import 'package:takasapp/pages/message_screen.dart';
+import 'package:takasapp/pages/messages.dart';
 import 'package:takasapp/pages/profile.dart';
 import 'package:takasapp/utility/custom_bottombaritem.dart';
 import 'package:takasapp/utility/project_colors.dart';
 import 'home_page.dart';
 
+// ignore: must_be_immutable
 class Referance extends StatefulWidget {
-  const Referance({super.key});
-
+  const Referance({
+    super.key,
+  });
   @override
   State<Referance> createState() => _ReferanceState();
 }
@@ -18,10 +20,11 @@ class _ReferanceState extends State<Referance> {
   int currentindex = 0;
   final currentPage = <Widget>[
     const HomePage(),
-    const MessageScreen(),
+    const Messages(),
     const Advertise(),
     const Profile()
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: "Takas App",
       debugShowCheckedModeBanner: false,
       theme: ThemeData(),
       home: user.currentUser == null ? const LoginPage() : const Referance(),

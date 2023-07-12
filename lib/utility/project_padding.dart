@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ProjectPadding {
-  static final mediumHorizontal = EdgeInsets.symmetric(horizontal: 8);
-  static final mediumVertical = EdgeInsets.symmetric(vertical: 8);
-  static final allPadding = EdgeInsets.all(8);
+  static const mediumHorizontal = EdgeInsets.symmetric(horizontal: 8);
+  static const mediumVertical = EdgeInsets.symmetric(vertical: 8);
+  static const allPadding = EdgeInsets.all(8);
 }

@@ -31,7 +31,7 @@ class _PublishAdvertiseState extends State<PublishAdvertise> {
         child: Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("İlan Konumu"),
+        title: const Text("İlan Konumu"),
         backgroundColor: ProjectColor.mainColor,
       ),
       body: Padding(
@@ -39,9 +39,9 @@ class _PublishAdvertiseState extends State<PublishAdvertise> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: const Text(
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
                 "İlanın Konum Bilgileri",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
@@ -49,16 +49,17 @@ class _PublishAdvertiseState extends State<PublishAdvertise> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ListTile(
-                shape: StadiumBorder(side: BorderSide(color: Colors.black)),
+                shape:
+                    const StadiumBorder(side: BorderSide(color: Colors.black)),
                 leading: Text(
-                  city == null ? "Lütfen Butonu Kullanınız" : "$city,$country",
-                  style: TextStyle(
+                  "$city,$country",
+                  style: const TextStyle(
                     color: Colors.black,
                   ),
                 ),
                 trailing: TextButton(
                   onPressed: () => getLocation(),
-                  child: Text("konum getir"),
+                  child: const Text("konum getir"),
                 ),
               ),
             ),
@@ -78,7 +79,7 @@ class _PublishAdvertiseState extends State<PublishAdvertise> {
                         if (city == null) {
                           return showDialog(
                             context: context,
-                            builder: (context) => AlertDialog(
+                            builder: (context) => const AlertDialog(
                                 title: Text(
                                     "Lütfen Konum Getir Butonunu Kullanız!")),
                           );

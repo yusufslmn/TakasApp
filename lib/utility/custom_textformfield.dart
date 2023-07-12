@@ -7,15 +7,19 @@ TextFormField customTextFormField(
     required TextEditingController customController,
     int value = 1,
     TextInputType type = TextInputType.text,
-    String tl = ""}) {
+    String tl = "",
+    bool obscure = false,
+    IconButton? func}) {
   return TextFormField(
-    autovalidateMode: AutovalidateMode.always,
     validator: validate,
+    autovalidateMode: AutovalidateMode.disabled,
+    obscureText: obscure,
     key: key,
     maxLines: value,
     keyboardType: type,
     controller: customController,
     decoration: InputDecoration(
+      suffixIcon: func,
       suffixText: tl,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(25),

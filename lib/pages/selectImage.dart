@@ -78,10 +78,4 @@ class _SelectImage extends State<SelectImage> {
       ),
     );
   }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
 }

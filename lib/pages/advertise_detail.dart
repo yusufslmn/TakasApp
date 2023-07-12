@@ -1,28 +1,55 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:takasapp/pages/chat_screen.dart';
 import 'package:takasapp/pages/custom_profile.dart';
-import 'package:takasapp/pages/profile.dart';
 import 'package:takasapp/utility/project_colors.dart';
 import 'package:takasapp/utility/project_padding.dart';
 import '../services/ads_services.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-import '../services/auth_services.dart';
-
 // ignore: must_be_immutable
 class AdvertiseDetail extends StatefulWidget {
-  AdvertiseDetail({super.key, required this.adsID});
+  AdvertiseDetail(
+      {super.key,
+      required this.adsID,
+      required this.userID,
+      required this.adsName});
   String adsID;
+  String adsName;
+  String? userID;
 
   @override
   State<AdvertiseDetail> createState() => _AdvertiseDetailState();
 }
 
 class _AdvertiseDetailState extends State<AdvertiseDetail> {
-  final userDefaultImage =
+  String userImage =
       "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
   final controller = PageController();
+  String? userName;
+  @override
+  void initState() {
+    super.initState();
+    getUserDetails(widget.userID!);
+  }
+
+  getUserDetails(String userID) {
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(userID)
+        .get()
+        .then((value) {
+      setState(() {
+        userName = value.data()?["name"] + " " + value.data()?["lastname"] ??
+            "Bir şeyler yanlış gitti";
+        if (value.data()?["profileImageUrl"] != null) {
+          userImage = value.data()?["profileImageUrl"];
+        }
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // ignore: unused_local_variable
@@ -30,6 +57,24 @@ class _AdvertiseDetailState extends State<AdvertiseDetail> {
     final height = MediaQuery.sizeOf(context).height;
     return SafeArea(
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => ChatPage(
+                      adsId: widget.adsID,
+                      receiverUserID: widget.userID!,
+                      chatName: widget.adsName,
+                    )));
+          },
+          backgroundColor: ProjectColor.mainColor,
+          child: const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              "Mesaj Gönder",
+              style: TextStyle(fontSize: 10),
+            ),
+          ),
+        ),
         appBar: AppBar(
           centerTitle: true,
           title: const Text(
@@ -44,14 +89,14 @@ class _AdvertiseDetailState extends State<AdvertiseDetail> {
             if (snapshot.connectionState == ConnectionState.done) {
               if (snapshot.hasData) {
                 var list = snapshot.data!.imagesUrl;
-                return Container(
+                return SizedBox(
                   height: height,
                   child: Padding(
                     padding: ProjectPadding.allPadding,
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          Container(
+                          SizedBox(
                             height: height * 0.4,
                             child: PageView.builder(
                               controller: controller,
@@ -75,46 +120,75 @@ class _AdvertiseDetailState extends State<AdvertiseDetail> {
                                   fixedCenter: true),
                             ),
                           ),
-                          customListTile(
-                              customTitleText(snapshot.data!.adsName),
-                              customTitleText(snapshot.data!.adsPrice + "₺")),
+                          const Divider(thickness: 1),
                           ListTile(
-                            shape: StadiumBorder(),
-                            tileColor: const Color.fromARGB(255, 194, 194, 194),
-                            title: AuthService()
-                                .getUserName(snapshot.data!.userID),
-                            leading: CircleAvatar(
-                                backgroundImage:
-                                    NetworkImage(userDefaultImage)),
-                            trailing: IconButton(
-                                onPressed: () {
-                                  final auth = FirebaseAuth.instance;
-                                  auth.currentUser!.uid == snapshot.data!.userID
-                                      ? Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (context) => Profile()))
-                                      : Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  CustomProfile(
-                                                    userID:
-                                                        snapshot.data!.userID,
-                                                  )));
-                                },
-                                icon: Icon(CupertinoIcons.right_chevron)),
+                              titleAlignment: ListTileTitleAlignment.center,
+                              leading: customTitleText(snapshot.data!.adsName),
+                              trailing: customTitleText(
+                                  "${snapshot.data!.adsPrice}₺")),
+                          const Divider(thickness: 1),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ListTile(
+                              shape: const StadiumBorder(
+                                  side: BorderSide(color: Colors.grey)),
+                              tileColor: ProjectColor.mainColor,
+                              title: Text(
+                                userName!,
+                                style: const TextStyle(color: Colors.black),
+                              ),
+                              leading: CircleAvatar(
+                                  backgroundImage: NetworkImage(userImage)),
+                              trailing: IconButton(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .push(MaterialPageRoute(
+                                            builder: (context) => CustomProfile(
+                                                  userID: snapshot.data!.userID,
+                                                )));
+                                  },
+                                  icon: const Icon(
+                                    CupertinoIcons.right_chevron,
+                                    color: Colors.black,
+                                  )),
+                            ),
                           ),
-                          customListTile(
-                              Text("Kategori"), Text(snapshot.data!.category)),
-                          customListTile(
-                              Text("Durumu"), Text(snapshot.data!.status)),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: customListTile(
+                                const Text(
+                                  "Kategori",
+                                  softWrap: true,
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(snapshot.data!.category)),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: customListTile(
+                                const Text(
+                                  "Durumu",
+                                  style: TextStyle(
+                                      overflow: TextOverflow.fade,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(snapshot.data!.status)),
+                          ),
                           Container(
+                            margin: ProjectPadding.mediumHorizontal,
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(15)),
                             alignment: Alignment.centerLeft,
                             child: Padding(
                               padding: ProjectPadding.allPadding,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
+                                  const Text(
                                     "Açıklama",
                                     style: TextStyle(
                                         color: Colors.black,
@@ -127,7 +201,7 @@ class _AdvertiseDetailState extends State<AdvertiseDetail> {
                                 ],
                               ),
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -150,16 +224,17 @@ class _AdvertiseDetailState extends State<AdvertiseDetail> {
 
 ListTile customListTile(Text title, Widget subtitle) {
   return ListTile(
+    shape: const StadiumBorder(side: BorderSide(color: Colors.grey)),
     title: title,
     trailing: subtitle,
-    tileColor: Color.fromARGB(255, 247, 244, 244),
+    tileColor: const Color.fromARGB(255, 247, 244, 244),
   );
 }
 
 Text customTitleText(String title) {
   return Text(
     title,
-    style: TextStyle(
+    style: const TextStyle(
         color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold),
   );
 }

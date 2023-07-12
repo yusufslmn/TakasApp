@@ -10,6 +10,7 @@ class AdsModal {
   List<dynamic> imagesUrl;
   String adsPrice;
   String userID;
+  String? location;
 
   AdsModal(
       {required this.category,
@@ -19,19 +20,21 @@ class AdsModal {
       required this.adsID,
       required this.imagesUrl,
       required this.adsPrice,
-      required this.userID});
+      required this.userID,
+      this.location});
 
   toJson() {
     final firebaseAuth = FirebaseAuth.instance;
     return {
       "userID": firebaseAuth.currentUser!.uid,
-      "adsName": this.adsName,
-      "adsCategory": this.category,
-      "adsStatus": this.status,
-      "adsID": this.adsID,
-      "adsSituation": this.adsSituation,
-      "imagesURL": this.imagesUrl,
-      "adsPrice": this.adsPrice
+      "adsName": adsName,
+      "adsCategory": category,
+      "adsStatus": status,
+      "adsID": adsID,
+      "adsSituation": adsSituation,
+      "imagesURL": imagesUrl,
+      "adsPrice": adsPrice,
+      "location": location
     };
   }
 
@@ -46,22 +49,24 @@ class AdsModal {
         adsID: data["adsID"],
         imagesUrl: data["imagesURL"],
         adsPrice: data["adsPrice"],
-        userID: data["userID"]);
+        userID: data["userID"],
+        location: data["location"]);
   }
 
   Future<void> adsUpload() async {
     final adsCollection = FirebaseFirestore.instance.collection("ads");
     final firebaseAuth = FirebaseAuth.instance;
 
-    await adsCollection.doc(this.adsID).set({
+    await adsCollection.doc(adsID).set({
       "userID": firebaseAuth.currentUser!.uid,
-      "adsName": this.adsName,
-      "adsCategory": this.category,
-      "adsStatus": this.status,
-      "adsID": this.adsID,
-      "adsSituation": this.adsSituation,
-      "imagesURL": this.imagesUrl,
-      "adsPrice": this.adsPrice
+      "adsName": adsName,
+      "adsCategory": category,
+      "adsStatus": status,
+      "adsID": adsID,
+      "adsSituation": adsSituation,
+      "imagesURL": imagesUrl,
+      "adsPrice": adsPrice,
+      "location": location,
     });
   }
 }

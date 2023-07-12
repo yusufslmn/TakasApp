@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:takasapp/services/auth_services.dart';
@@ -21,6 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       lastname: Controller._lastnameController.text,
       email: Controller._emailController.text,
       password: Controller._passwordController.text);
+  bool obscure = true;
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
@@ -35,7 +37,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: SingleChildScrollView(
           child: Form(
               key: formKey,
-              autovalidateMode: AutovalidateMode.always,
+              autovalidateMode: AutovalidateMode.disabled,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -64,13 +66,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: customTextFormField(
                         validate: passwordValidator,
                         name: formName[3],
-                        customController: Controller._passwordController),
+                        customController: Controller._passwordController,
+                        obscure: obscure,
+                        func: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              obscure = !obscure;
+                            });
+                          },
+                          isSelected: true,
+                          icon: obscure
+                              ? const Icon(
+                                  CupertinoIcons.eye,
+                                  color: Colors.black,
+                                )
+                              : const Icon(
+                                  CupertinoIcons.eye_slash_fill,
+                                  color: Colors.black,
+                                ),
+                        )),
                   ),
                   Padding(
                     padding: padding,
                     child: customTextFormField(
                         name: formName[4],
-                        customController: Controller._repasswordController),
+                        customController: Controller._repasswordController,
+                        obscure: true),
                   ),
                   SizedBox(
                       width: width * 0.9,
@@ -97,7 +118,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   name: user.name,
                                   lastname: user.lastname,
                                   email: user.email,
-                                  password: user.password);
+                                  password: user.password!);
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => const Referance()));
                             } else {

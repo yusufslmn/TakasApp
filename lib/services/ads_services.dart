@@ -23,3 +23,18 @@ Future<List<AdsModal>> getUserAds(String? userID) async {
   final adsData = snapshot.docs.map((e) => AdsModal.fromSnapshot(e)).toList();
   return adsData;
 }
+
+Future<List<AdsModal>> getCategoryAds(String category) async {
+  final db = FirebaseFirestore.instance;
+  final snapshot = await db
+      .collection("ads")
+      .where("adsCategory", isEqualTo: category)
+      .get();
+  final adsData = snapshot.docs.map((e) => AdsModal.fromSnapshot(e)).toList();
+  return adsData;
+}
+
+Future<void> deleteAds(String adsId) async {
+  final db = FirebaseFirestore.instance;
+  await db.collection("ads").doc(adsId).delete();
+}

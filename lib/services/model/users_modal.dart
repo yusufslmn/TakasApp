@@ -4,14 +4,18 @@ class Users {
   late final String name;
   late final String lastname;
   late final String email;
-  late final String password;
+  late final String? password;
   final String? userID;
+  final String? about;
+  final String? profileImageUrl;
   Users(
       {required this.name,
       required this.lastname,
       required this.email,
       required this.password,
-      this.userID});
+      this.userID,
+      this.about,
+      this.profileImageUrl});
 
   factory Users.fromSnapshot(
       QueryDocumentSnapshot<Map<String, dynamic>> document) {
@@ -21,6 +25,8 @@ class Users {
         name: data["name"],
         lastname: data["lastname"],
         password: data["password"],
-        userID: data["userID"]);
+        userID: data["userID"],
+        about: data["about"],
+        profileImageUrl: data["profileImageUrl"]);
   }
 }

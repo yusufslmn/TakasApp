@@ -36,7 +36,10 @@ class _AdvertiseState extends State<Advertise> {
   TextEditingController adsSitutation = TextEditingController();
   TextEditingController adsPrice = TextEditingController();
   String? adsnameValidate(String? name) {
-    return (name!.isNotEmpty) ? null : 'İlan ismi boş olamaz !';
+    if (name!.isEmpty) {
+      return 'İlan ismi boş olamaz !';
+    }
+    return null;
   }
 
   String? adsSituationValidate(String? value) {
@@ -64,7 +67,7 @@ class _AdvertiseState extends State<Advertise> {
           child: SingleChildScrollView(
             child: Form(
               key: _formKey,
-              autovalidateMode: AutovalidateMode.always,
+              autovalidateMode: AutovalidateMode.disabled,
               child: Column(
                 children: [
                   Padding(

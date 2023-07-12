@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:takasapp/services/model/users_modal.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../pages/referance.dart';
 
 class AuthService {
@@ -19,6 +19,15 @@ class AuthService {
       "lastname": lastname,
       "email": email,
       "password": password
+    });
+  }
+
+  Future<void> registerGoogleUser({User? user}) async {
+    await userCollection.doc(user!.uid).set({
+      "userID": user.uid,
+      "name": user.displayName!.split(' ').first,
+      "email": user.email,
+      "lastname": user.displayName!.split(' ').last
     });
   }
 
@@ -46,6 +55,7 @@ class AuthService {
       final UserCredential userCredential = await firebaseAuth
           .signInWithEmailAndPassword(email: email, password: password);
       if (userCredential.user != null) {
+        // ignore: use_build_context_synchronously
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => const Referance()));
       }
@@ -57,7 +67,7 @@ class AuthService {
               titleTextStyle:
                   GoogleFonts.andika(color: const Color.fromARGB(255, 0, 0, 0)),
               title: Text(e.message!, textAlign: TextAlign.center),
-              backgroundColor: Color.fromARGB(255, 222, 208, 196),
+              backgroundColor: const Color.fromARGB(255, 222, 208, 196),
               elevation: 0,
               shadowColor: Colors.transparent,
               alignment: Alignment.bottomCenter,
@@ -67,30 +77,20 @@ class AuthService {
     }
   }
 
-  Future<Users> getUserDetails(String userID) async {
-    final db = FirebaseFirestore.instance;
-    final snapshot =
-        await db.collection("users").where("userID", isEqualTo: userID).get();
-    final userData = snapshot.docs.map((e) => Users.fromSnapshot(e)).single;
-    return userData;
-  }
+  Future<UserCredential?> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
+      final GoogleSignInAuthentication? gAuth = await gUser?.authentication;
 
-  FutureBuilder getUserName(String userID) => FutureBuilder(
-      future: AuthService().getUserDetails(userID),
-      builder: ((context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          if (snapshot.hasData) {
-            return Text(
-              snapshot.data!.name + " " + snapshot.data!.lastname,
-              style: const TextStyle(color: Colors.black),
-            );
-          } else if (snapshot.hasError) {
-            return Center(child: Text(snapshot.error.toString()));
-          } else {
-            return const Center(child: Text("bir şeyler yanlış gitti..."));
-          }
-        } else {
-          return const Center(child: CircularProgressIndicator());
-        }
-      }));
+      final credential = GoogleAuthProvider.credential(
+        accessToken: gAuth?.accessToken,
+        idToken: gAuth?.idToken,
+      );
+      return await FirebaseAuth.instance.signInWithCredential(credential);
+    } on FirebaseAuthException catch (e) {
+      // ignore: avoid_print
+      print(e.message);
+    }
+    return null;
+  }
 }

@@ -4,6 +4,8 @@ import 'package:takasapp/pages/homeads.dart';
 import 'package:takasapp/utility/project_colors.dart';
 import 'package:takasapp/utility/project_padding.dart';
 
+import 'category_ads.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -14,9 +16,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
     FutureAds();
+    super.initState();
   }
 
   String searchString = "Takaslamak istediğiniz her şey...";
@@ -37,7 +38,7 @@ class _HomePageState extends State<HomePage> {
                   scrollDirection: Axis.horizontal,
                   itemCount: 6,
                   itemBuilder: (context, index) {
-                    return customCategoryContainer(index);
+                    return customCategoryContainer(index, context);
                   })),
           Expanded(
               flex: 7,
@@ -47,11 +48,14 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Container(
                         alignment: Alignment.centerLeft,
-                        child: Padding(
+                        child: const Padding(
                           padding: ProjectPadding.mediumHorizontal,
-                          child: const Text("Aktif İlanlar",
+                          child: Text("Aktif İlanlar",
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         )),
+                    const Divider(
+                      thickness: 1,
+                    ),
                     Expanded(child: FutureAds()),
                   ],
                 ),
@@ -137,9 +141,14 @@ List<Color?> colors = [
   Colors.pinkAccent
 ];
 
-InkWell customCategoryContainer(int index) {
+InkWell customCategoryContainer(int index, BuildContext context) {
   return InkWell(
-    onTap: () {},
+    onTap: () {
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => CategoryAds(
+                categoryName: categoryName[index],
+              )));
+    },
     child: Column(
       children: [
         Expanded(

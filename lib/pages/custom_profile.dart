@@ -1,7 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:takasapp/pages/advertise_detail.dart';
 import 'package:takasapp/services/ads_services.dart';
-import 'package:takasapp/services/auth_services.dart';
 import 'package:takasapp/services/model/advertise_modal.dart';
 import 'package:takasapp/utility/project_padding.dart';
 
@@ -14,16 +14,38 @@ class CustomProfile extends StatefulWidget {
 }
 
 class _CustomProfile extends State<CustomProfile> {
-  final userDefaultImage =
+  String userImage =
       "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
-  final userDefaultAbout = "Hakkımda...";
+  String userAbout = "Hakkımda...";
   Future<List<AdsModal>>? _stream;
+  String? userName;
   @override
   void initState() {
     WidgetsBinding.instance
         .addPostFrameCallback((_) => getUserAds(widget.userID));
     super.initState();
+
     _stream = getUserAds(widget.userID);
+    getUserDetails(widget.userID);
+  }
+
+  getUserDetails(String userID) {
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(userID)
+        .get()
+        .then((value) {
+      setState(() {
+        userName = value.data()?["name"] + " " + value.data()?["lastname"] ??
+            "Bir şeyler yanlış gitti";
+        if (value.data()?["about"] != null) {
+          userAbout = value.data()?["about"];
+        }
+        if (value.data()?["profileImageUrl"] != null) {
+          userImage = value.data()?["profileImageUrl"];
+        }
+      });
+    });
   }
 
   @override
@@ -43,25 +65,20 @@ class _CustomProfile extends State<CustomProfile> {
               height: height * 0.1,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  image:
-                      DecorationImage(image: NetworkImage(userDefaultImage))),
+                  image: DecorationImage(image: NetworkImage(userImage))),
             ),
           ),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FutureBuilder(
-                  future: AuthService().getUserDetails(widget.userID),
-                  builder: ((context, snapshot) {
-                    return Text(
-                      "${snapshot.data!.name}  ${snapshot.data!.lastname}",
-                      style: const TextStyle(color: Colors.black),
-                    );
-                  })),
+              Text(
+                userName!,
+                style: const TextStyle(color: Colors.black),
+              ),
               Padding(
                 padding: ProjectPadding.mediumVertical,
                 child: Text(
-                  userDefaultAbout,
+                  userAbout,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 3,
                   style: const TextStyle(color: Colors.black, fontSize: 16),
@@ -106,12 +123,15 @@ class _CustomProfile extends State<CustomProfile> {
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => AdvertiseDetail(
-                              adsID: snapshot.data![index].adsID,
-                            )));
+                            adsName: snapshot.data![index].adsName,
+                            adsID: snapshot.data![index].adsID,
+                            userID: snapshot.data![index].userID)));
                   },
                   child: SizedBox(
                     height: height * 0.3,
                     child: Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30)),
                       elevation: 2,
                       color: const Color.fromARGB(255, 223, 222, 222),
                       child: Column(
@@ -129,22 +149,40 @@ class _CustomProfile extends State<CustomProfile> {
                           Expanded(
                             flex: 2,
                             child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Text(
-                                  textAlign: TextAlign.left,
-                                  snapshot.data![index].adsName,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
+                                Expanded(
+                                  flex: 6,
+                                  child: Container(
+                                    padding: const EdgeInsets.only(left: 15),
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      textAlign: TextAlign.left,
+                                      snapshot.data![index].adsName,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                      textWidthBasis: TextWidthBasis.parent,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12),
+                                    ),
+                                  ),
                                 ),
-                                Text(
-                                  textAlign: TextAlign.left,
-                                  "${snapshot.data![index].adsPrice} ₺",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
+                                Expanded(
+                                  flex: 4,
+                                  child: Container(
+                                    alignment: Alignment.centerLeft,
+                                    padding: const EdgeInsets.only(
+                                        right: 10, left: 6),
+                                    child: Text(
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.left,
+                                      "${snapshot.data![index].adsPrice} ₺",
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),

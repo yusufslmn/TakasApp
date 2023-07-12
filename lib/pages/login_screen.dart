@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:takasapp/pages/referance.dart';
 import 'package:takasapp/pages/register_screen.dart';
 import 'package:takasapp/utility/project_colors.dart';
 
@@ -17,6 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   final formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool obscure = true;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +33,7 @@ class _LoginPageState extends State<LoginPage> {
           scrollDirection: Axis.vertical,
           child: Form(
             key: formKey,
+            autovalidateMode: AutovalidateMode.disabled,
             child: Column(
               children: [
                 imageLogin(width, height),
@@ -90,7 +94,29 @@ class _LoginPageState extends State<LoginPage> {
               borderRadius: BorderRadius.all(Radius.circular(100))),
           backgroundColor: colors,
         ),
-        onPressed: () {},
+        onPressed: () async {
+          await AuthService().signInWithGoogle().then((value) async {
+            if (value != null) {
+              showDialog(
+                  context: context,
+                  builder: (context) => const AlertDialog(
+                        alignment: Alignment.center,
+                        title: Center(child: Text("Hoşgeldiniz")),
+                      ));
+              await AuthService().registerGoogleUser(user: value.user);
+              // ignore: use_build_context_synchronously
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const Referance()));
+            }
+
+            if (value == null) {
+              // ignore: use_build_context_synchronously
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const LoginPage()));
+            }
+            return null;
+          });
+        },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -123,9 +149,8 @@ class _LoginPageState extends State<LoginPage> {
 
   TextFormField textFormFieldPassword() {
     return TextFormField(
-      obscureText: true,
+      obscureText: obscure,
       controller: _passwordController,
-      autovalidateMode: AutovalidateMode.always,
       validator: (value) {
         if (value!.length < 7) {
           return "Lütfen 7 karakterden uzun bir parola giriniz";
@@ -133,6 +158,23 @@ class _LoginPageState extends State<LoginPage> {
         return null;
       },
       decoration: InputDecoration(
+        suffixIcon: IconButton(
+          onPressed: () {
+            setState(() {
+              obscure = !obscure;
+            });
+          },
+          isSelected: true,
+          icon: obscure
+              ? const Icon(
+                  CupertinoIcons.eye,
+                  color: Colors.black,
+                )
+              : const Icon(
+                  CupertinoIcons.eye_slash_fill,
+                  color: Colors.black,
+                ),
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(25),
         ),

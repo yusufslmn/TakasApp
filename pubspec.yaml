@@ -49,6 +49,9 @@ dependencies:
   location: ^4.4.0
   geocoding: ^2.1.0
   geolocator: ^9.0.2
+  google_sign_in: ^6.1.4
+  chat_bubbles: ^1.4.1
+  auto_reload: ^1.1.0
 
 dev_dependencies:
   flutter_test:
