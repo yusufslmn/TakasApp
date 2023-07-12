@@ -2,17 +2,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:takasapp/services/ads_services.dart';
-import 'package:takasapp/services/model/message_modal.dart';
 import 'package:takasapp/utility/project_colors.dart';
 import 'package:auto_reload/auto_reload.dart';
-import '../services/chat_services.dart';
+import '../../services/chat_services.dart';
 import 'chat_screen.dart';
 
 class Messages extends StatefulWidget {
   const Messages({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _MessagesState createState() => _MessagesState();
 }
 
@@ -21,7 +20,8 @@ abstract class _AutoReloadState extends State<Messages>
 
 class _MessagesState extends _AutoReloadState with AutoReloadMixin {
   final ChatService _chatService = ChatService();
-  String currentUser = FirebaseAuth.instance.currentUser!.uid;
+  String? currentUser = FirebaseAuth.instance.currentUser!.uid;
+  String? userImage;
   @override
   void initState() {
     startAutoReload();
@@ -55,8 +55,9 @@ class _MessagesState extends _AutoReloadState with AutoReloadMixin {
               children: snapshot.data!.docs
                   .map((document) => _buildMessageItem(document))
                   .toList());
-        } else
-          return CircularProgressIndicator();
+        } else {
+          return const Center(child: CircularProgressIndicator());
+        }
       },
     );
   }

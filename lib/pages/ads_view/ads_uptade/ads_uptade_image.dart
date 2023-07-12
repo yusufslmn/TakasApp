@@ -3,7 +3,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_image_picker_view/multi_image_picker_view.dart';
-import 'package:takasapp/pages/referance.dart';
+import 'package:takasapp/pages/home_view/referance.dart';
 import 'package:takasapp/services/uploadImage.dart';
 import 'package:takasapp/utility/project_colors.dart';
 

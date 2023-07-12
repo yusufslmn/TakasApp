@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:takasapp/pages/selectImage.dart';
+import 'package:takasapp/pages/ads_view/ads_publish/selectImage.dart';
 import 'package:takasapp/utility/custom_textformfield.dart';
 import 'package:takasapp/utility/project_colors.dart';
 import 'dart:core';
-import '../services/model/advertise_modal.dart';
+import '../../../services/model/advertise_modal.dart';
 
 class Advertise extends StatefulWidget {
   const Advertise({super.key});

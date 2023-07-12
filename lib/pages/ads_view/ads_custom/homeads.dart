@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../services/ads_services.dart';
-import '../services/model/advertise_modal.dart';
-import '../utility/project_padding.dart';
+import '../../../services/ads_services.dart';
+import '../../../services/model/advertise_modal.dart';
+import '../../../utility/project_padding.dart';
 import 'advertise_detail.dart';
 
 // ignore: must_be_immutable

@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:multi_image_picker_view/multi_image_picker_view.dart';
-import 'package:takasapp/pages/advertise_publishing.dart';
+import 'package:takasapp/pages/ads_view/ads_publish/ads_location.dart';
 import 'package:takasapp/services/model/advertise_modal.dart';
 import 'package:takasapp/utility/project_colors.dart';
 

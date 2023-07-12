@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:takasapp/services/auth_services.dart';
 import 'package:takasapp/utility/custom_textformfield.dart';
-import '../services/model/users_modal.dart';
-import 'referance.dart';
+import '../../services/model/users_modal.dart';
+import '../home_view/referance.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

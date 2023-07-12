@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:multi_image_picker_view/multi_image_picker_view.dart';
-import 'package:takasapp/pages/referance.dart';
+import 'package:takasapp/pages/home_view/referance.dart';
 import 'package:takasapp/services/location_service.dart';
 import 'package:takasapp/services/model/advertise_modal.dart';
 import 'package:takasapp/utility/project_colors.dart';
-import '../services/uploadImage.dart';
+import '../../../services/uploadImage.dart';
 
 // ignore: must_be_immutable
 class PublishAdvertise extends StatefulWidget {

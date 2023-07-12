@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:takasapp/pages/login_screen.dart';
-import 'package:takasapp/pages/referance.dart';
+import 'package:takasapp/pages/login/login_screen.dart';
+import 'package:takasapp/pages/home_view/referance.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

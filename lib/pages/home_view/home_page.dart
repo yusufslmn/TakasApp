@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:takasapp/pages/homeads.dart';
+import 'package:takasapp/pages/ads_view/ads_custom/homeads.dart';
 import 'package:takasapp/utility/project_colors.dart';
 import 'package:takasapp/utility/project_padding.dart';
 
-import 'category_ads.dart';
+import '../ads_view/ads_custom/category_ads.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});

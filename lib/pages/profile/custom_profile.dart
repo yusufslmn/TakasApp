@@ -1,38 +1,32 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:takasapp/pages/ads_uptaded.dart';
-import 'package:takasapp/pages/advertise_detail.dart';
-import 'package:takasapp/pages/login_screen.dart';
-import 'package:takasapp/pages/profile_settings.dart';
+import 'package:takasapp/pages/ads_view/ads_custom/advertise_detail.dart';
 import 'package:takasapp/services/ads_services.dart';
 import 'package:takasapp/services/model/advertise_modal.dart';
 import 'package:takasapp/utility/project_padding.dart';
 
-class Profile extends StatefulWidget {
-  const Profile({
-    super.key,
-  });
+// ignore: must_be_immutable
+class CustomProfile extends StatefulWidget {
+  CustomProfile({super.key, required this.userID});
+  String userID;
   @override
-  State<Profile> createState() => _ProfileState();
+  State<CustomProfile> createState() => _CustomProfile();
 }
 
-class _ProfileState extends State<Profile> {
+class _CustomProfile extends State<CustomProfile> {
   String userImage =
       "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
   String userAbout = "Hakkımda...";
-  final currentUser = FirebaseAuth.instance.currentUser;
   Future<List<AdsModal>>? _stream;
-  ScrollController controller = ScrollController();
   String? userName;
   @override
   void initState() {
     WidgetsBinding.instance
-        .addPostFrameCallback((_) => getUserAds(currentUser!.uid));
+        .addPostFrameCallback((_) => getUserAds(widget.userID));
     super.initState();
-    _stream = getUserAds(currentUser!.uid);
-    getUserDetails(currentUser!.uid);
+
+    _stream = getUserAds(widget.userID);
+    getUserDetails(widget.userID);
   }
 
   getUserDetails(String userID) {
@@ -43,7 +37,7 @@ class _ProfileState extends State<Profile> {
         .then((value) {
       setState(() {
         userName = value.data()?["name"] + " " + value.data()?["lastname"] ??
-            " boş geldi";
+            "Bir şeyler yanlış gitti";
         if (value.data()?["about"] != null) {
           userAbout = value.data()?["about"];
         }
@@ -78,7 +72,7 @@ class _ProfileState extends State<Profile> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                userName ?? "Hata",
+                userName!,
                 style: const TextStyle(color: Colors.black),
               ),
               Padding(
@@ -92,28 +86,6 @@ class _ProfileState extends State<Profile> {
               ),
             ],
           ),
-          actions: [
-            IconButton(
-                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const ProfileSettings())),
-                icon: const Icon(
-                  CupertinoIcons.settings,
-                  color: Colors.black,
-                )),
-            IconButton(
-                onPressed: () {
-                  final auth = FirebaseAuth.instance;
-                  auth.signOut();
-                  Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(
-                          builder: (context) => const LoginPage()),
-                      (Route<dynamic> route) => true);
-                },
-                icon: const Icon(
-                  CupertinoIcons.square_arrow_right,
-                  color: Colors.black,
-                )),
-          ],
         ),
         body: Padding(
           padding: ProjectPadding.allPadding,
@@ -127,9 +99,6 @@ class _ProfileState extends State<Profile> {
                     fontSize: 17,
                     fontWeight: FontWeight.bold),
               ),
-              const Divider(
-                thickness: 1,
-              ),
               Expanded(child: SizedBox(child: adsUsers(width, height))),
             ],
           ),
@@ -139,13 +108,12 @@ class _ProfileState extends State<Profile> {
   }
 
   FutureBuilder<List<AdsModal>> adsUsers(double width, double height) {
-    return FutureBuilder<List<AdsModal>>(
+    return FutureBuilder(
       future: _stream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasData) {
             return GridView.builder(
-              controller: controller,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2, crossAxisSpacing: 5, mainAxisSpacing: 5),
               shrinkWrap: true,
@@ -155,49 +123,31 @@ class _ProfileState extends State<Profile> {
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => AdvertiseDetail(
-                              adsName: snapshot.data![index].adsName,
-                              adsID: snapshot.data![index].adsID,
-                              userID: snapshot.data![index].userID,
-                            )));
+                            adsName: snapshot.data![index].adsName,
+                            adsID: snapshot.data![index].adsID,
+                            userID: snapshot.data![index].userID)));
                   },
                   child: SizedBox(
-                    height: height * 0.4,
+                    height: height * 0.3,
                     child: Card(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30)),
                       elevation: 2,
-                      color: const Color.fromARGB(255, 243, 242, 242),
+                      color: const Color.fromARGB(255, 223, 222, 222),
                       child: Column(
                         children: [
                           Expanded(
                             flex: 8,
-                            child: Stack(
-                              children: [
-                                Padding(
-                                  padding: ProjectPadding.allPadding,
-                                  child: Image.network(
-                                    snapshot.data![index].imagesUrl.first,
-                                    filterQuality: FilterQuality.high,
-                                  ),
-                                ),
-                                IconButton(
-                                    onPressed: () {
-                                      Navigator.of(context)
-                                          .push(MaterialPageRoute(
-                                              builder: (context) => AdsUpdate(
-                                                    adsID: snapshot
-                                                        .data![index].adsID,
-                                                  )));
-                                    },
-                                    icon: const Icon(
-                                      CupertinoIcons.ellipsis_circle,
-                                      size: 20,
-                                    ))
-                              ],
+                            child: Padding(
+                              padding: ProjectPadding.allPadding,
+                              child: Image.network(
+                                snapshot.data![index].imagesUrl.first,
+                                filterQuality: FilterQuality.high,
+                              ),
                             ),
                           ),
                           Expanded(
-                            flex: 1,
+                            flex: 2,
                             child: Row(
                               children: [
                                 Expanded(

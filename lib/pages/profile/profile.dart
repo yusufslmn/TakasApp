@@ -1,32 +1,38 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:takasapp/pages/advertise_detail.dart';
+import 'package:takasapp/pages/ads_view/ads_uptade/ads_uptaded.dart';
+import 'package:takasapp/pages/ads_view/ads_custom/advertise_detail.dart';
+import 'package:takasapp/pages/login/login_screen.dart';
+import 'package:takasapp/pages/profile/profile_settings.dart';
 import 'package:takasapp/services/ads_services.dart';
 import 'package:takasapp/services/model/advertise_modal.dart';
 import 'package:takasapp/utility/project_padding.dart';
 
-// ignore: must_be_immutable
-class CustomProfile extends StatefulWidget {
-  CustomProfile({super.key, required this.userID});
-  String userID;
+class Profile extends StatefulWidget {
+  const Profile({
+    super.key,
+  });
   @override
-  State<CustomProfile> createState() => _CustomProfile();
+  State<Profile> createState() => _ProfileState();
 }
 
-class _CustomProfile extends State<CustomProfile> {
+class _ProfileState extends State<Profile> {
   String userImage =
       "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
   String userAbout = "Hakkımda...";
+  final currentUser = FirebaseAuth.instance.currentUser;
   Future<List<AdsModal>>? _stream;
+  ScrollController controller = ScrollController();
   String? userName;
   @override
   void initState() {
     WidgetsBinding.instance
-        .addPostFrameCallback((_) => getUserAds(widget.userID));
+        .addPostFrameCallback((_) => getUserAds(currentUser!.uid));
     super.initState();
-
-    _stream = getUserAds(widget.userID);
-    getUserDetails(widget.userID);
+    _stream = getUserAds(currentUser!.uid);
+    getUserDetails(currentUser!.uid);
   }
 
   getUserDetails(String userID) {
@@ -37,7 +43,7 @@ class _CustomProfile extends State<CustomProfile> {
         .then((value) {
       setState(() {
         userName = value.data()?["name"] + " " + value.data()?["lastname"] ??
-            "Bir şeyler yanlış gitti";
+            " boş geldi";
         if (value.data()?["about"] != null) {
           userAbout = value.data()?["about"];
         }
@@ -72,7 +78,7 @@ class _CustomProfile extends State<CustomProfile> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                userName!,
+                userName ?? "Hata",
                 style: const TextStyle(color: Colors.black),
               ),
               Padding(
@@ -86,6 +92,28 @@ class _CustomProfile extends State<CustomProfile> {
               ),
             ],
           ),
+          actions: [
+            IconButton(
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const ProfileSettings())),
+                icon: const Icon(
+                  CupertinoIcons.settings,
+                  color: Colors.black,
+                )),
+            IconButton(
+                onPressed: () {
+                  final auth = FirebaseAuth.instance;
+                  auth.signOut();
+                  Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                          builder: (context) => const LoginPage()),
+                      (Route<dynamic> route) => true);
+                },
+                icon: const Icon(
+                  CupertinoIcons.square_arrow_right,
+                  color: Colors.black,
+                )),
+          ],
         ),
         body: Padding(
           padding: ProjectPadding.allPadding,
@@ -99,6 +127,9 @@ class _CustomProfile extends State<CustomProfile> {
                     fontSize: 17,
                     fontWeight: FontWeight.bold),
               ),
+              const Divider(
+                thickness: 1,
+              ),
               Expanded(child: SizedBox(child: adsUsers(width, height))),
             ],
           ),
@@ -108,12 +139,13 @@ class _CustomProfile extends State<CustomProfile> {
   }
 
   FutureBuilder<List<AdsModal>> adsUsers(double width, double height) {
-    return FutureBuilder(
+    return FutureBuilder<List<AdsModal>>(
       future: _stream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasData) {
             return GridView.builder(
+              controller: controller,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2, crossAxisSpacing: 5, mainAxisSpacing: 5),
               shrinkWrap: true,
@@ -123,31 +155,53 @@ class _CustomProfile extends State<CustomProfile> {
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => AdvertiseDetail(
-                            adsName: snapshot.data![index].adsName,
-                            adsID: snapshot.data![index].adsID,
-                            userID: snapshot.data![index].userID)));
+                              adsName: snapshot.data![index].adsName,
+                              adsID: snapshot.data![index].adsID,
+                              userID: snapshot.data![index].userID,
+                            )));
                   },
                   child: SizedBox(
-                    height: height * 0.3,
+                    height: height * 0.4,
                     child: Card(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30)),
                       elevation: 2,
-                      color: const Color.fromARGB(255, 223, 222, 222),
+                      color: const Color.fromARGB(255, 243, 242, 242),
                       child: Column(
                         children: [
                           Expanded(
                             flex: 8,
-                            child: Padding(
-                              padding: ProjectPadding.allPadding,
-                              child: Image.network(
-                                snapshot.data![index].imagesUrl.first,
-                                filterQuality: FilterQuality.high,
-                              ),
+                            child: Stack(
+                              children: [
+                                Padding(
+                                  padding: ProjectPadding.allPadding,
+                                  child: Image.network(
+                                    snapshot.data![index].imagesUrl.first,
+                                    filterQuality: FilterQuality.high,
+                                  ),
+                                ),
+                                Positioned(
+                                  right:0,
+                                  child: IconButton(
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .push(MaterialPageRoute(
+                                                builder: (context) => AdsUpdate(
+                                                      adsID: snapshot
+                                                          .data![index].adsID,
+                                                    )));
+                                      },
+                                      icon: const Icon(
+                                        CupertinoIcons.ellipsis_circle,
+                                        size: 20,
+                                        color: Colors.white,
+                                      )),
+                                )
+                              ],
                             ),
                           ),
                           Expanded(
-                            flex: 2,
+                            flex: 1,
                             child: Row(
                               children: [
                                 Expanded(

@@ -1,66 +1,58 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:takasapp/pages/ads_uptade_image.dart';
-import 'package:takasapp/utility/project_colors.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:takasapp/pages/home_view/referance.dart';
+import 'package:takasapp/services/uploadImage.dart';
+import '../../utility/project_padding.dart';
 
-// ignore: must_be_immutable
-class AdsUpdate extends StatefulWidget {
-  AdsUpdate({super.key, required this.adsID});
-  String? adsID;
+class ProfileSettings extends StatefulWidget {
+  const ProfileSettings({super.key});
+
   @override
-  State<AdsUpdate> createState() => _AdsUpdateState();
+  State<ProfileSettings> createState() => _ProfileSettingsState();
 }
 
-class _AdsUpdateState extends State<AdsUpdate> {
-  final adsNameController = TextEditingController();
-  final adsSituationController = TextEditingController();
-  final adsPriceController = TextEditingController();
-
+class _ProfileSettingsState extends State<ProfileSettings> {
+  String userImage =
+      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png";
+  String userAbout = " Hakkımda...";
   Icon icon1 = const Icon(CupertinoIcons.pencil_ellipsis_rectangle);
   Icon icon2 = const Icon(CupertinoIcons.pencil_ellipsis_rectangle);
   Icon icon3 = const Icon(CupertinoIcons.pencil_ellipsis_rectangle);
 
-  String? adsName;
-  String? adsSituation;
-  String? adsPrice;
-  List<dynamic>? imagesList;
-
+  bool enabled = false;
+  final user = FirebaseAuth.instance;
+  final nameController = TextEditingController();
+  final lastnameController = TextEditingController();
+  final aboutController = TextEditingController();
+  String? userName;
+  String? lastname;
   @override
   void initState() {
-    getAdsDetails(widget.adsID!);
     super.initState();
+    getUserDetails(user.currentUser!.uid);
   }
 
-  getAdsDetails(String userID) {
+  getUserDetails(String userID) {
     FirebaseFirestore.instance
-        .collection("ads")
-        .doc(widget.adsID)
+        .collection("users")
+        .doc(userID)
         .get()
         .then((value) {
       setState(() {
-        adsName = value.data()?["adsName"];
-        adsSituation = value.data()?["adsSituation"];
-        adsPrice = value.data()?["adsPrice"];
-        imagesList = value.data()?["imagesURL"];
+        userName = value.data()?["name"];
+        lastname = value.data()?["lastname"];
+        if (value.data()?["about"] != null) {
+          userAbout = value.data()?["about"];
+        }
+        if (value.data()?["profileImageUrl"] != null) {
+          userImage = value.data()?["profileImageUrl"];
+        }
       });
     });
   }
-
-  String? adsnameValidate(String? name) {
-    if (name!.isEmpty) {
-      return 'İlan ismi boş olamaz !';
-    }
-    return null;
-  }
-
-  String? adsSituationValidate(String? value) {
-    return (value!.isNotEmpty && value.length > 10)
-        ? null
-        : '10 Karakterden küçük olamaz!';
-  }
-
-  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -69,42 +61,53 @@ class _AdsUpdateState extends State<AdsUpdate> {
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
-        centerTitle: true,
-        title: const Text("İlan Güncelleme"),
-        backgroundColor: ProjectColor.mainColor,
+        leadingWidth: width * 0.3,
+        toolbarHeight: height * 0.2,
+        backgroundColor: const Color.fromARGB(0, 255, 255, 255),
+        elevation: 0,
+        leading: Padding(
+          padding: ProjectPadding.mediumHorizontal,
+          child: Container(
+            height: height * 0.1,
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(image: NetworkImage(userImage))),
+          ),
+        ),
+        title: TextButton(
+          onPressed: () async {
+            ImagePicker imagePicker = ImagePicker();
+            XFile? file =
+                await imagePicker.pickImage(source: ImageSource.gallery);
+            await uploadProfile(file);
+            getUserDetails(user.currentUser!.uid);
+          },
+          child: const Text("Profil Resmini Düzenle"),
+        ),
       ),
       body: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          autovalidateMode: AutovalidateMode.disabled,
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
           child: Column(
             children: [
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  "İlan Adı",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  autovalidateMode: AutovalidateMode.disabled,
+                child: TextField(
                   onTap: () {
                     setState(() {
                       icon1 = const Icon(CupertinoIcons.check_mark);
                     });
                   },
-                  controller: adsNameController,
+                  controller: nameController,
                   decoration: InputDecoration(
-                    hintText: adsName,
+                    hintText: userName,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25),
                     ),
                     suffixIcon: IconButton(
                         onPressed: () {
                           setState(() {
-                            adsName = adsNameController.text;
+                            userName = nameController.text;
                             icon1 = const Icon(
                                 CupertinoIcons.pencil_ellipsis_rectangle);
                           });
@@ -113,46 +116,30 @@ class _AdsUpdateState extends State<AdsUpdate> {
                   ),
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  "İlan Açıklaması",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: TextFormField(
-                  autovalidateMode: AutovalidateMode.disabled,
-                  maxLines: 5,
+                child: TextField(
                   onTap: () {
                     setState(() {
                       icon2 = const Icon(CupertinoIcons.check_mark);
                     });
                   },
-                  controller: adsSituationController,
+                  controller: lastnameController,
                   decoration: InputDecoration(
-                    hintText: adsSituation,
+                    hintText: lastname,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25),
                     ),
                     suffixIcon: IconButton(
                         onPressed: () {
                           setState(() {
-                            adsSituation = adsSituationController.text;
+                            lastname = lastnameController.text;
                             icon2 = const Icon(
                                 CupertinoIcons.pencil_ellipsis_rectangle);
                           });
                         },
                         icon: icon2),
                   ),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                  "İlan Fiyatı",
-                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
               Padding(
@@ -163,24 +150,21 @@ class _AdsUpdateState extends State<AdsUpdate> {
                       icon3 = const Icon(CupertinoIcons.check_mark);
                     });
                   },
-                  keyboardType: TextInputType.number,
-                  controller: adsPriceController,
+                  controller: aboutController,
                   decoration: InputDecoration(
-                    hintText: adsPrice,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    ),
+                    hintText: userAbout,
                     suffixIcon: IconButton(
                         onPressed: () {
                           setState(() {
-                            adsPrice = adsPriceController.text;
-                            // ignore: avoid_print
-                            print(adsPrice);
+                            userAbout = aboutController.text;
                             icon3 = const Icon(
                                 CupertinoIcons.pencil_ellipsis_rectangle);
                           });
                         },
                         icon: icon3),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
                   ),
                 ),
               ),
@@ -199,20 +183,16 @@ class _AdsUpdateState extends State<AdsUpdate> {
                         ),
                         onPressed: () async {
                           await FirebaseFirestore.instance
-                              .collection("ads")
-                              .doc(widget.adsID)
+                              .collection("users")
+                              .doc(user.currentUser!.uid)
                               .update({
-                            "adsName": adsName,
-                            "adsSituation": adsSituation,
-                            "adsPrice": adsPrice
+                            "name": userName,
+                            "lastname": lastname,
+                            "about": userAbout
                           });
-
                           // ignore: use_build_context_synchronously
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => UptadeImage(
-                                    imagesUrl: imagesList,
-                                    adsId: widget.adsID!,
-                                  )));
+                              builder: (context) => const Referance()));
                         },
                         child: const Text("Güncelle"))),
               ),

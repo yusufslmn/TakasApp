@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:takasapp/pages/chat_screen.dart';
-import 'package:takasapp/pages/custom_profile.dart';
+import 'package:takasapp/pages/chat/chat_screen.dart';
+import 'package:takasapp/pages/profile/custom_profile.dart';
 import 'package:takasapp/utility/project_colors.dart';
 import 'package:takasapp/utility/project_padding.dart';
-import '../services/ads_services.dart';
+import '../../../services/ads_services.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 // ignore: must_be_immutable
@@ -123,9 +123,14 @@ class _AdvertiseDetailState extends State<AdvertiseDetail> {
                           const Divider(thickness: 1),
                           ListTile(
                               titleAlignment: ListTileTitleAlignment.center,
-                              leading: customTitleText(snapshot.data!.adsName),
-                              trailing: customTitleText(
-                                  "${snapshot.data!.adsPrice}₺")),
+                              title: Container(
+                                  padding: const EdgeInsets.only(right: 30),
+                                  child:
+                                      customTitleText(snapshot.data!.adsName)),
+                              trailing: Container(
+                                child: customTitleText(
+                                    "${snapshot.data!.adsPrice}₺"),
+                              )),
                           const Divider(thickness: 1),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
@@ -234,6 +239,7 @@ ListTile customListTile(Text title, Widget subtitle) {
 Text customTitleText(String title) {
   return Text(
     title,
+    overflow: TextOverflow.ellipsis,
     style: const TextStyle(
         color: Colors.black, fontSize: 25, fontWeight: FontWeight.bold),
   );

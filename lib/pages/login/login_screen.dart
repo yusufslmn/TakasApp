@@ -2,11 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:takasapp/pages/referance.dart';
-import 'package:takasapp/pages/register_screen.dart';
+import 'package:takasapp/pages/home_view/referance.dart';
+import 'package:takasapp/pages/login/register_screen.dart';
+import 'package:takasapp/pages/login/reset_password.dart';
 import 'package:takasapp/utility/project_colors.dart';
 
-import '../services/auth_services.dart';
+import '../../services/auth_services.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -221,7 +222,8 @@ class ButtonRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         TextButton(
-            onPressed: () {},
+            onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const ResetPassword())),
             child: Text(
               password,
               style: TextStyle(color: ProjectColor.grey),

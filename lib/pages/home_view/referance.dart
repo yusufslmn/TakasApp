@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:takasapp/pages/advertise_publish.dart';
-import 'package:takasapp/pages/messages.dart';
-import 'package:takasapp/pages/profile.dart';
+import 'package:takasapp/pages/ads_view/ads_publish/advertise_publish.dart';
+import 'package:takasapp/pages/chat/messages.dart';
+import 'package:takasapp/pages/profile/profile.dart';
 import 'package:takasapp/utility/custom_bottombaritem.dart';
 import 'package:takasapp/utility/project_colors.dart';
 import 'home_page.dart';

@@ -1,13 +1,10 @@
 import 'package:auto_reload/auto_reload.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:takasapp/services/chat_services.dart';
-import 'package:takasapp/utility/my_text_field.dart';
-import 'package:chat_bubbles/chat_bubbles.dart';
 import 'package:takasapp/utility/project_colors.dart';
-
-import '../services/model/message_modal.dart';
 
 class ChatPage extends StatefulWidget {
   final String chatName;
@@ -20,6 +17,7 @@ class ChatPage extends StatefulWidget {
       required this.adsId});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChatPageState createState() => _ChatPageState();
 }
 
@@ -91,19 +89,33 @@ class _ChatPageState extends _AutoReloadState with AutoReloadMixin {
     var aligment = (data["senderId"] == _firebaseAuth.currentUser!.uid)
         ? Alignment.centerRight
         : Alignment.centerLeft;
+    final Timestamp time = data['timestamp'];
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
         alignment: aligment,
         child: Container(
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 color: ProjectColor.mainColor),
-            child: Text(
-              data["message"],
-              style: TextStyle(color: Colors.white, fontSize: 14),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment:
+                  (data["senderId"] == _firebaseAuth.currentUser!.uid)
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data["message"],
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                ),
+                Text(
+                  "${time.toDate().hour.toString()} :${time.toDate().minute.toString()} ",
+                  style: const TextStyle(fontSize: 10),
+                )
+              ],
             )),
       ),
     );
@@ -113,18 +125,30 @@ class _ChatPageState extends _AutoReloadState with AutoReloadMixin {
   Widget _buildMessageInput() {
     return Row(
       children: [
-        //textfield
         Expanded(
-            child: MyTextField(
+          child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
                 controller: _messageController,
-                hintText: 'Enter Message',
-                obscureText: false)),
-        IconButton(
-            onPressed: sendMessage,
-            icon: const Icon(
-              Icons.arrow_upward_rounded,
-              size: 40,
-            ))
+                decoration: InputDecoration(
+                    disabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide(color: ProjectColor.mainColor)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide(color: ProjectColor.mainColor)),
+                    hintText: 'Enter message',
+                    suffixIcon: IconButton(
+                        onPressed: sendMessage,
+                        icon: Icon(
+                          CupertinoIcons.arrow_turn_down_right,
+                          size: 40,
+                          color: ProjectColor.mainColor,
+                        )),
+                    enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey.shade200))),
+              )),
+        )
       ],
     );
   }
