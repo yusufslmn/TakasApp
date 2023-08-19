@@ -135,6 +135,11 @@ class _AdvertiseDetailState extends State<AdvertiseDetail> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: ListTile(
+                              onTap: () =>
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) => CustomProfile(
+                                            userID: snapshot.data!.userID,
+                                          ))),
                               shape: const StadiumBorder(
                                   side: BorderSide(color: Colors.grey)),
                               tileColor: ProjectColor.mainColor,
@@ -144,18 +149,10 @@ class _AdvertiseDetailState extends State<AdvertiseDetail> {
                               ),
                               leading: CircleAvatar(
                                   backgroundImage: NetworkImage(userImage)),
-                              trailing: IconButton(
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .push(MaterialPageRoute(
-                                            builder: (context) => CustomProfile(
-                                                  userID: snapshot.data!.userID,
-                                                )));
-                                  },
-                                  icon: const Icon(
-                                    CupertinoIcons.right_chevron,
-                                    color: Colors.black,
-                                  )),
+                              trailing: Icon(
+                                CupertinoIcons.right_chevron,
+                                color: Colors.black,
+                              ),
                             ),
                           ),
                           Padding(

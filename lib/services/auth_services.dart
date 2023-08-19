@@ -8,6 +8,7 @@ import '../pages/home_view/referance.dart';
 class AuthService {
   final userCollection = FirebaseFirestore.instance.collection("users");
   final firebaseAuth = FirebaseAuth.instance;
+
   Future<void> registerUser(
       {required String name,
       required String lastname,
@@ -56,8 +57,9 @@ class AuthService {
           .signInWithEmailAndPassword(email: email, password: password);
       if (userCredential.user != null) {
         // ignore: use_build_context_synchronously
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => const Referance()));
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const Referance()),
+            (route) => false);
       }
     } on FirebaseAuthException catch (e) {
       showDialog(

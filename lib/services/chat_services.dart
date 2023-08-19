@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:takasapp/services/model/message_modal.dart';
+import 'package:takasapp/services/send_notification.dart';
+import 'package:takasapp/services/user_service.dart';
 
 class ChatService extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -13,6 +15,7 @@ class ChatService extends ChangeNotifier {
     //get current user info
     final String currentUserId = _firebaseAuth.currentUser!.uid;
     final Timestamp timestamp = Timestamp.now();
+
     List<String> members = [receiverId, currentUserId];
     members.sort();
     // ignore: prefer_interpolation_to_compose_strings

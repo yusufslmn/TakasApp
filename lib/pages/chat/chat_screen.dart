@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:takasapp/services/chat_services.dart';
 import 'package:takasapp/utility/project_colors.dart';
 
+import '../../services/send_notification.dart';
+import '../../services/user_service.dart';
+
 class ChatPage extends StatefulWidget {
   final String chatName;
   final String adsId;
@@ -36,11 +39,19 @@ class _ChatPageState extends _AutoReloadState with AutoReloadMixin {
   }
 
   void sendMessage() async {
+    final UserService _service = UserService();
+    final String currentUserId = _firebaseAuth.currentUser!.uid;
+    late final TokenModal token;
+    late final TokenModal name;
+    token = await _service.getUser(widget.receiverUserID);
+    name = await _service.getUser(currentUserId);
+
     if (_messageController.text.isNotEmpty) {
       await _chatService.sendMessage(widget.chatName, widget.adsId,
           widget.receiverUserID, _messageController.text);
-
-      _messageController.text = "";
+      await sendFCMMessage(
+              token.userToken!, name.userName!, _messageController.text)
+          .whenComplete(() => _messageController.clear());
     }
   }
 

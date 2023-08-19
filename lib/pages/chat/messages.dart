@@ -69,14 +69,13 @@ class _MessagesState extends _AutoReloadState with AutoReloadMixin {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: ListTile(
-        trailing: IconButton(
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => ChatPage(
-                      adsId: data["adsId"],
-                      receiverUserID: members.first,
-                      chatName: data["chatName"],
-                    ))),
-            icon: const Icon(CupertinoIcons.arrow_turn_down_right)),
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => ChatPage(
+                  adsId: data["adsId"],
+                  receiverUserID: members.first,
+                  chatName: data["chatName"],
+                ))),
+        trailing: Icon(CupertinoIcons.arrow_turn_down_right),
         shape: StadiumBorder(side: BorderSide(color: ProjectColor.mainColor)),
         title: Text(data["chatName"]),
       ),
