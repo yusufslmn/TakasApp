@@ -39,18 +39,10 @@ class _ChatPageState extends _AutoReloadState with AutoReloadMixin {
   }
 
   void sendMessage() async {
-    final UserService _service = UserService();
-    final String currentUserId = _firebaseAuth.currentUser!.uid;
-    late final TokenModal token;
-    late final TokenModal name;
-    token = await _service.getUser(widget.receiverUserID);
-    name = await _service.getUser(currentUserId);
-
     if (_messageController.text.isNotEmpty) {
-      await _chatService.sendMessage(widget.chatName, widget.adsId,
-          widget.receiverUserID, _messageController.text);
-      await sendFCMMessage(
-              token.userToken!, name.userName!, _messageController.text)
+      await _chatService
+          .sendMessage(widget.chatName, widget.adsId, widget.receiverUserID,
+              _messageController.text)
           .whenComplete(() => _messageController.clear());
     }
   }

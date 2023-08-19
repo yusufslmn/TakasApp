@@ -76,14 +76,6 @@ class _PublishAdvertiseState extends State<PublishAdvertise> {
                         backgroundColor: const Color.fromARGB(255, 255, 119, 7),
                       ),
                       onPressed: () async {
-                        if (city == null) {
-                          return showDialog(
-                            context: context,
-                            builder: (context) => const AlertDialog(
-                                title: Text(
-                                    "Lütfen Konum Getir Butonunu Kullanız!")),
-                          );
-                        }
                         await uploadImage(
                             widget.controller.images, widget.modal);
                         // ignore: use_build_context_synchronously

@@ -41,7 +41,7 @@ class AuthService {
       final UserCredential userCredential = await firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: password);
       if (userCredential.user != null) {
-        registerUser(
+        await registerUser(
             name: name, lastname: lastname, email: email, password: password);
       }
     } on FirebaseAuthException catch (e) {

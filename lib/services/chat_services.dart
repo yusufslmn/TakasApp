@@ -23,7 +23,12 @@ class ChatService extends ChangeNotifier {
     // create a new message
     Message newMessage = Message(
         senderId: currentUserId, message: message, timestamp: timestamp);
+    final UserService _service = UserService();
+    late final TokenModal token;
+    late final TokenModal name;
 
+    token = await _service.getUser(receiverId);
+    name = await _service.getUser(currentUserId);
     await _db
         .collection("chats")
         .doc(chatId)
@@ -33,6 +38,7 @@ class ChatService extends ChangeNotifier {
         .doc(chatId)
         .collection("messages")
         .add(newMessage.toMap());
+    await sendFCMMessage(token.userToken!, name.userName!, message);
   }
 
 // get messages

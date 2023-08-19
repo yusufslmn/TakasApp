@@ -1,28 +1,35 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:takasapp/pages/ads_view/ads_custom/ads_search.dart';
-import 'package:takasapp/services/home_provider.dart';
+import 'package:takasapp/services/firebase_notification.dart';
 import 'package:takasapp/utility/project_colors.dart';
 import 'package:takasapp/utility/project_padding.dart';
+import '../../services/ads_services.dart';
 import '../ads_view/ads_custom/advertise_detail.dart';
 import '../ads_view/ads_custom/category_ads.dart';
-import 'package:transparent_image/transparent_image.dart';
 
-class HomePage extends ConsumerStatefulWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
   @override
-  ConsumerState<ConsumerStatefulWidget> createState() => _HomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends ConsumerState<HomePage> {
+class _HomePageState extends State<HomePage> {
+  late final Stream<QuerySnapshot<Object?>> _stream;
+  final FirebaseNotifications notifications = FirebaseNotifications();
+
   @override
   void initState() {
-    ref.read(homeProvider).notifications.connectNotification();
+    notifications.connectNotification();
+    _stream = getAllAds();
     super.initState();
   }
+
+  String searchString = "Takaslamak istediğiniz her şey...";
+  final controller = TextEditingController();
+  ScrollController scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +39,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         children: [
           Padding(
             padding: ProjectPadding.allPadding,
-            child: TextTop(
-                controller: ref.watch(homeProvider).controller,
-                searchString: ref.watch(homeProvider).searchString),
+            child: TextTop(controller: controller, searchString: searchString),
           ),
           Expanded(
               flex: 3,
@@ -63,25 +68,21 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ),
                     Expanded(
                         child: StreamBuilder(
-                      stream: ref.watch(homeProvider).getAllAds(),
+                      stream: _stream,
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
-                          final adsList = snapshot.data!.docs
-                              .map((document) =>
-                                  _buildAdsItem(document, context, height))
-                              .toList();
                           return GridView(
-                            controller:
-                                ref.watch(homeProvider).scrollController,
+                            controller: scrollController,
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 2,
                                     crossAxisSpacing: 5,
                                     mainAxisSpacing: 5),
                             shrinkWrap: true,
-                            addAutomaticKeepAlives: true,
-                            dragStartBehavior: DragStartBehavior.start,
-                            children: adsList,
+                            children: snapshot.data!.docs
+                                .map((document) =>
+                                    _buildAdsItem(document, context, height))
+                                .toList(),
                           );
                         } else if (snapshot.hasError) {
                           return Center(child: Text(snapshot.error.toString()));
@@ -125,7 +126,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                 child: Padding(
                   padding: ProjectPadding.allPadding,
                   child: Image.network(
-                    data["imagesURL"].first,
+                    data["imagesURL"].first ??
+                        "https://e7.pngegg.com/pngimages/68/127/png-clipart-warning-sign-computer-icons-symbol-exclamation-mark-error-page-miscellaneous-angle.png",
                     loadingBuilder: (BuildContext context, Widget child,
                         ImageChunkEvent? loadingProgress) {
                       if (loadingProgress == null) return child;
