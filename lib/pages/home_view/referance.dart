@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:takasapp/pages/ads_view/ads_publish/advertise_publish.dart';
 import 'package:takasapp/pages/chat/messages.dart';
 import 'package:takasapp/pages/profile/profile.dart';
+import 'package:takasapp/services/firebase_notification.dart';
 import 'package:takasapp/utility/custom_bottombaritem.dart';
 import 'package:takasapp/utility/project_colors.dart';
 import 'home_page.dart';
@@ -17,6 +18,7 @@ class Referance extends StatefulWidget {
 }
 
 class _ReferanceState extends State<Referance> {
+  final FirebaseNotifications notifications = FirebaseNotifications();
   int currentindex = 0;
   final currentPage = <Widget>[
     const HomePage(),
@@ -24,6 +26,11 @@ class _ReferanceState extends State<Referance> {
     const Advertise(),
     const Profile()
   ];
+  @override
+  void initState() {
+    notifications.connectNotification();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

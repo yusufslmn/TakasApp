@@ -51,6 +51,11 @@ class _MessagesState extends _AutoReloadState with AutoReloadMixin {
       stream: _chatService.getUserMessages(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
+          if (snapshot.data!.docs.isEmpty) {
+            return Center(
+              child: Text("Mesajiniz bulunmamaktadir!"),
+            );
+          }
           return ListView(
               children: snapshot.data!.docs
                   .map((document) => _buildMessageItem(document))

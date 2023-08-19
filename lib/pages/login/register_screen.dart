@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:takasapp/pages/login/login_screen.dart';
 import 'package:takasapp/services/auth_services.dart';
 import 'package:takasapp/utility/custom_textformfield.dart';
 import '../../services/model/users_modal.dart';
-import '../home_view/referance.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -104,7 +104,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             backgroundColor:
                                 const Color.fromARGB(255, 255, 119, 7),
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             final user = Users(
                                 name: Controller._nameController.text,
                                 lastname: Controller._lastnameController.text,
@@ -114,22 +114,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             if (formKey.currentState!.validate() &&
                                 (Controller._passwordController.text ==
                                     Controller._repasswordController.text)) {
-                              AuthService().signUp(
-                                  name: user.name,
-                                  lastname: user.lastname,
-                                  email: user.email,
-                                  password: user.password!);
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => const Referance()));
+                              AuthService()
+                                  .signUp(
+                                      name: user.name,
+                                      lastname: user.lastname,
+                                      email: user.email,
+                                      password: user.password!)
+                                  .whenComplete(() {
+                                Controller._nameController.clear();
+                                Controller._lastnameController.clear();
+                                Controller._emailController.clear();
+                                Controller._passwordController.clear();
+                                Controller._repasswordController.clear();
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => const LoginPage()));
+                              });
                             } else {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return const AlertDialog(
-                                      title:
-                                          Text("Bilgilerinizi Kontrol Ediniz!"),
-                                    );
-                                  });
+                              showDiaolog(context);
                             }
                           },
                           child: const Text("Kaydol"))),
@@ -138,6 +139,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+
+  Future<dynamic> showDiaolog(BuildContext context) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return const AlertDialog(
+            title: Text("Bilgilerinizi Kontrol Ediniz!"),
+          );
+        });
   }
 }
 

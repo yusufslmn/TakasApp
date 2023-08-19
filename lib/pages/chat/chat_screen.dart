@@ -6,9 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:takasapp/services/chat_services.dart';
 import 'package:takasapp/utility/project_colors.dart';
 
-import '../../services/send_notification.dart';
-import '../../services/user_service.dart';
-
 class ChatPage extends StatefulWidget {
   final String chatName;
   final String adsId;

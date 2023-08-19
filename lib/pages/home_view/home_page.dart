@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:takasapp/pages/ads_view/ads_custom/ads_search.dart';
-import 'package:takasapp/services/firebase_notification.dart';
 import 'package:takasapp/utility/project_colors.dart';
 import 'package:takasapp/utility/project_padding.dart';
 import '../../services/ads_services.dart';
@@ -18,11 +17,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late final Stream<QuerySnapshot<Object?>> _stream;
-  final FirebaseNotifications notifications = FirebaseNotifications();
 
   @override
   void initState() {
-    notifications.connectNotification();
     _stream = getAllAds();
     super.initState();
   }
@@ -43,13 +40,16 @@ class _HomePageState extends State<HomePage> {
           ),
           Expanded(
               flex: 3,
-              child: ListView.builder(
-                  shrinkWrap: true,
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 6,
-                  itemBuilder: (context, index) {
-                    return customCategoryContainer(index, context);
-                  })),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ListView.builder(
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 6,
+                    itemBuilder: (context, index) {
+                      return customCategoryContainer(index, context);
+                    }),
+              )),
           Expanded(
               flex: 7,
               child: Padding(
